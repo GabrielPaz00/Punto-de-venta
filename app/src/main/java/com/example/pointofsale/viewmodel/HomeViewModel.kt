@@ -8,13 +8,13 @@ import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.lifecycle.ViewModel
-import com.example.pointofsale.model.UserState
+import com.example.pointofsale.model.entities.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.ui.graphics.vector.ImageVector
 
 class HomeViewModel():  ViewModel(){
-    val userState = MutableStateFlow(UserState())
+    val userState = MutableStateFlow(User())
 
     private val allItems = listOf(
         Triple("Inicio", Icons.Default.Home, "home"),

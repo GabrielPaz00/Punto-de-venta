@@ -1,4 +1,4 @@
-package com.example.pointofsale.view
+package com.example.pointofsale.view.auth
 
 
 import androidx.compose.foundation.background
@@ -17,7 +17,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pointofsale.view.components.AppLogo
+import com.example.pointofsale.core.components.AppLogo
 
 @Composable
 fun LoginView(

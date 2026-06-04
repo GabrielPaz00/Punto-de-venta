@@ -1,4 +1,4 @@
-package com.example.pointofsale.view.components
+package com.example.pointofsale.core.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,16 +16,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.pointofsale.R
-import com.example.pointofsale.view.theme.PointOfSaleTheme
+import com.example.pointofsale.core.theme.PointOfSaleTheme
 
 @Composable
 fun AppLogo(
     modifier: Modifier = Modifier,
     tint: Color = Color.White,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
-    contentPadding: androidx.compose.ui.unit.Dp = 16.dp
+    contentPadding: Dp = 16.dp
 ) {
     Box(
         modifier = modifier

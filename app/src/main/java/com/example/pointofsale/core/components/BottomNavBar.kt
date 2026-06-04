@@ -1,4 +1,4 @@
-package com.example.pointofsale.view.components
+package com.example.pointofsale.core.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme

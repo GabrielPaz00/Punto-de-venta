@@ -1,4 +1,4 @@
-package com.example.pointofsale.view
+package com.example.pointofsale.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -7,7 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pointofsale.model.UserState
+import com.example.pointofsale.model.entities.User
+import com.example.pointofsale.view.home.HomeView
+import com.example.pointofsale.view.auth.LoginView
 import com.example.pointofsale.viewmodel.HomeViewModel
 
 @Composable
@@ -24,7 +26,7 @@ fun App() {
                     }
                 },
                 onNavigateToHome = {
-                    val userLevel = UserState().userLevel
+                    val userLevel = User().userLevel
                     navController.navigate("home/$userLevel") {
                         popUpTo("launch") { inclusive = true }
                     }
@@ -35,7 +37,7 @@ fun App() {
         composable("login") {
             LoginView(
                 onLoginSuccess = {
-                    val userLevel = UserState().userLevel
+                    val userLevel = User().userLevel
                     navController.navigate("home/$userLevel") {
                         popUpTo("login") { inclusive = true }
                     }

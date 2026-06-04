@@ -1,4 +1,4 @@
-package com.example.pointofsale.view.theme
+package com.example.pointofsale.core.theme
 
 import androidx.compose.ui.graphics.Color
 

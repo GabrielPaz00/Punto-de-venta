@@ -1,4 +1,4 @@
-package com.example.pointofsale.view
+package com.example.pointofsale.view.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,8 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pointofsale.view.components.BottomNavBar
-import com.example.pointofsale.view.theme.PointOfSaleTheme
+import com.example.pointofsale.core.components.BottomNavBar
+import com.example.pointofsale.core.theme.PointOfSaleTheme
 import com.example.pointofsale.viewmodel.HomeViewModel
 
 @Composable
