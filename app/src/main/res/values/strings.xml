@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">BytePOS</string>
+    <string name="app_logo_content_description">App Logo</string>
+    <string name="login_title">Sistema de Inventario</string>
+    <string name="login_subtitle">Gestión de ventas y productos</string>
+    <string name="label_username">Usuario</string>
+    <string name="placeholder_username">Ingrese su usuario</string>
+    <string name="label_password">Contraseña</string>
+    <string name="placeholder_password">Ingrese su contraseña</string>
+    <string name="button_login">Iniciar Sesión</string>
+    <string name="app_version_info">v1.0.0 • Sistema POS</string>
+    <string name="description_show_password">Ver contraseña</string>
+</resources>
