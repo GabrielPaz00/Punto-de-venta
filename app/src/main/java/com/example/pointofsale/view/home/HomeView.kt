@@ -22,12 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pointofsale.core.components.BottomNavBar
 import com.example.pointofsale.core.theme.PointOfSaleTheme
-import com.example.pointofsale.viewmodel.HomeViewModel
+import com.example.pointofsale.viewmodel.home.HomeViewModel
 
 @Composable
-fun HomeView(viewModel: HomeViewModel) {
-    val userState by viewModel.userState.collectAsState()
-
+fun HomeView(viewModel: HomeViewModel, userLevel: String) {
     Scaffold(
         bottomBar = { BottomNavBar(viewModel) },
         containerColor = MaterialTheme.colorScheme.background
@@ -38,7 +36,7 @@ fun HomeView(viewModel: HomeViewModel) {
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            HeaderSection(userState.userLevel)
+            HeaderSection(userLevel)
             Spacer(modifier = Modifier.height(24.dp))
             SummarySection()
             Spacer(modifier = Modifier.height(32.dp))
@@ -238,7 +236,8 @@ fun HomeViewPreview() {
     PointOfSaleTheme(darkTheme = false) {
         HomeView(viewModel {
             HomeViewModel()
-        })
+        },
+        userLevel = "user")
     }
 }
 
@@ -248,6 +247,7 @@ fun HomeViewDarkPreview() {
     PointOfSaleTheme(darkTheme = true) {
         HomeView(viewModel {
             HomeViewModel()
-        })
+        },
+        userLevel = "admin")
     }
 }

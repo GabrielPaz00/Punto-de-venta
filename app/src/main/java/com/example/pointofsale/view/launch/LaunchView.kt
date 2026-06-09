@@ -1,4 +1,4 @@
-package com.example.pointofsale.core.navigation
+package com.example.pointofsale.view.launch
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,9 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pointofsale.core.components.AppLogo
+import com.example.pointofsale.viewmodel.launch.AuthState
+import com.example.pointofsale.viewmodel.launch.LaunchViewModel
 import com.example.pointofsale.core.theme.PointOfSaleTheme
-import com.example.pointofsale.viewmodel.AuthState
-import com.example.pointofsale.viewmodel.LaunchViewModel
 
 @Composable
 fun LaunchView(

@@ -1,6 +1,5 @@
 package com.example.pointofsale.view.auth
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,18 +16,45 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pointofsale.core.components.AppLogo
+import com.example.pointofsale.viewmodel.auth.AuthUiState
+import com.example.pointofsale.viewmodel.auth.LoginViewModel
+
 
 @Composable
 fun LoginView(
-    onLoginSuccess: () -> Unit
-) {
+    viewModel: LoginViewModel = viewModel(),
+    onLoginSuccess: (String) -> Unit
+){
+    val uiState by viewModel.uiState.collectAsState()
 
+    LoginContent(
+        uiState = uiState,
+        onLoginClick = { user, pass -> viewModel.login(user, pass) },
+        onLoginSuccess = onLoginSuccess,
+        onClearError = { viewModel.clearError() }
+    )
+}
+
+@Composable
+fun LoginContent(
+    uiState: AuthUiState,
+    onLoginClick: (String, String) -> Unit,
+    onLoginSuccess: (String) -> Unit,
+    onClearError: () -> Unit
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     val primaryColor = MaterialTheme.colorScheme.primary
+
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated && uiState.userProfile != null) {
+            onLoginSuccess(uiState.userProfile.userLevel)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -72,7 +98,10 @@ fun LoginView(
             )
             OutlinedTextField(
                 value = username,
-                onValueChange = { username = it },
+                onValueChange = {
+                    username = it
+                    onClearError()
+                },
                 placeholder = { Text("Ingrese su usuario", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -97,7 +126,10 @@ fun LoginView(
             )
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    onClearError()
+                },
                 placeholder = { Text("Ingrese su contraseña", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -118,26 +150,45 @@ fun LoginView(
             )
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        if (uiState.errorMessage != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = uiState.errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        } else {
+            Spacer(modifier = Modifier.height(40.dp))
+        }
 
         Button(
             onClick = {
-                onLoginSuccess()
+                onLoginClick(username, password)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
+            enabled = !uiState.isLoading,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = primaryColor,
                 contentColor = Color.White
             )
         ) {
-            Text(
-                text = "Iniciar Sesión",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(
+                    text = "Iniciar Sesión",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -150,4 +201,3 @@ fun LoginView(
         )
     }
 }
-

@@ -1,4 +1,4 @@
-package com.example.pointofsale.viewmodel
+package com.example.pointofsale.viewmodel.home
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -7,11 +7,11 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import com.example.pointofsale.model.entities.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import androidx.compose.ui.graphics.vector.ImageVector
 
 class HomeViewModel():  ViewModel(){
     val userState = MutableStateFlow(User())
@@ -25,7 +25,8 @@ class HomeViewModel():  ViewModel(){
         Triple("Perfil", Icons.Default.AccountCircle, "profile")
     )
 
-    private val _filteredItems = MutableStateFlow<List<Triple<String, ImageVector, String>>>(emptyList())
+    private val _filteredItems =
+        MutableStateFlow<List<Triple<String, ImageVector, String>>>(emptyList())
     val filteredItems: StateFlow<List<Triple<String, ImageVector, String>>> = _filteredItems
 
     fun filterNavigationMenu() {

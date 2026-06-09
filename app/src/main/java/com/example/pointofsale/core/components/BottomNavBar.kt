@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pointofsale.viewmodel.HomeViewModel
+import com.example.pointofsale.viewmodel.home.HomeViewModel
 
 @Composable
 fun BottomNavBar(viewmodel: HomeViewModel) {

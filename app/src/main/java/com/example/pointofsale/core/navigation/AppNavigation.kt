@@ -7,10 +7,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pointofsale.model.entities.User
 import com.example.pointofsale.view.home.HomeView
 import com.example.pointofsale.view.auth.LoginView
-import com.example.pointofsale.viewmodel.HomeViewModel
+import com.example.pointofsale.view.launch.LaunchView
+import com.example.pointofsale.viewmodel.home.HomeViewModel
 
 @Composable
 fun App() {
@@ -25,8 +25,7 @@ fun App() {
                         popUpTo("launch") { inclusive = true }
                     }
                 },
-                onNavigateToHome = {
-                    val userLevel = User().userLevel
+                onNavigateToHome = { userLevel ->
                     navController.navigate("home/$userLevel") {
                         popUpTo("launch") { inclusive = true }
                     }
@@ -36,8 +35,7 @@ fun App() {
 
         composable("login") {
             LoginView(
-                onLoginSuccess = {
-                    val userLevel = User().userLevel
+                onLoginSuccess = { userLevel ->
                     navController.navigate("home/$userLevel") {
                         popUpTo("login") { inclusive = true }
                     }
@@ -45,14 +43,13 @@ fun App() {
             )
         }
 
-
         composable(
             route = "home/{userLevel}",
             arguments = listOf(navArgument("userLevel") { type = NavType.StringType })
         ) { backStackEntry ->
             val userLevel = backStackEntry.arguments?.getString("userLevel") ?: "user"
             val homeViewModel: HomeViewModel = viewModel()
-            HomeView(viewModel = homeViewModel)
+            HomeView(viewModel = homeViewModel, userLevel = userLevel)
         }
     }
 }
