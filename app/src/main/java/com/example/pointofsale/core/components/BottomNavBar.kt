@@ -1,37 +1,71 @@
 package com.example.pointofsale.core.components
 
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pointofsale.viewmodel.home.HomeViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+
+data class NavItem(
+    val label: String,
+    val icon: ImageVector,
+    val route: String
+)
 
 @Composable
-fun BottomNavBar(viewmodel: HomeViewModel) {
-    var currentView by remember { mutableStateOf("home") }
-    viewmodel.filterNavigationMenu()
-    val filteredItems = viewmodel.filteredItems.collectAsState().value
+fun BottomNavBar(
+    userLevel: String,
+    navController: NavController
+) {
+    val allItems = listOf(
+        NavItem("Inicio", Icons.Default.Home, "home"),
+        NavItem("POS", Icons.Default.ShoppingCart, "pos"),
+        NavItem("Productos", Icons.Default.Inventory, "products"),
+        NavItem("Reportes", Icons.Default.BarChart, "reports"),
+        NavItem("Usuarios", Icons.Default.People, "users"),
+        NavItem("Perfil", Icons.Default.AccountCircle, "profile")
+    )
+
+    val filteredItems = remember(userLevel) {
+        allItems.filter { item ->
+            when (userLevel) {
+                "admin" -> true
+                "user" -> item.label in listOf("Inicio", "POS", "Productos", "Perfil")
+                else -> item.label == "Inicio"
+            }
+        }
+    }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = Color.Transparent,
         tonalElevation = 8.dp
     ) {
-        filteredItems.forEach { (label, icon, view) ->
+        filteredItems.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(icon, contentDescription = label) },
-                label = { Text(label, fontSize = 10.sp) },
-                selected = currentView == view,
-                onClick = { currentView = view },
+                icon = { Icon(item.icon, contentDescription = item.label) },
+                label = { Text(item.label, fontSize = 10.sp) },
+                selected = currentRoute?.contains(item.route) == true,
+                onClick = {
+                    if (currentRoute != item.route) {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,
                     selectedTextColor = MaterialTheme.colorScheme.primary,

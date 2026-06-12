@@ -21,6 +21,11 @@ class LoginViewModel(
             _uiState.update { it.copy(errorMessage = "Por favor, complete todos los campos") }
             return
         }
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
+        if (!email.matches(emailRegex)) {
+            _uiState.update { it.copy(errorMessage = "Correo electrónico no válido") }
+            return
+        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }

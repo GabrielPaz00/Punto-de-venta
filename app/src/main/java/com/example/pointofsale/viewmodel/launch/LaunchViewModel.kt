@@ -4,6 +4,7 @@ package com.example.pointofsale.viewmodel.launch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pointofsale.model.repository.AuthRepository
+import com.example.pointofsale.model.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +16,10 @@ sealed class AuthState {
     data class Authenticated(val userLevel: String) : AuthState()
 }
 
-class LaunchViewModel(private val authRepository: AuthRepository = AuthRepository()) : ViewModel() {
+class LaunchViewModel(
+    private val authRepository: AuthRepository = AuthRepository(),
+    private val userRepository: UserRepository = UserRepository()
+) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -28,7 +32,7 @@ class LaunchViewModel(private val authRepository: AuthRepository = AuthRepositor
         viewModelScope.launch {
             val currentUser = authRepository.getCurrentUser()
             if (currentUser != null) {
-                val userProfile = authRepository.getUserProfile(currentUser.uid)
+                val userProfile = userRepository.getUserProfile(currentUser.uid)
                 if (userProfile != null && userProfile.isActive) {
                     _authState.value = AuthState.Authenticated(userProfile.userLevel)
                 } else {

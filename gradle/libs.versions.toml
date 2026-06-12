@@ -11,6 +11,7 @@ composeBom = "2026.02.01"
 ui = "1.11.2"
 navigationCompose = "2.9.8"
 firebaseBom = "34.14.0"
+lifecycleViewmodelKtx = "2.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +34,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,14 +19,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.pointofsale.core.components.BottomNavBar
 import com.example.pointofsale.core.theme.PointOfSaleTheme
 import com.example.pointofsale.viewmodel.home.HomeViewModel
 
+
 @Composable
-fun HomeView(viewModel: HomeViewModel, userLevel: String) {
+fun HomeView(viewModel: HomeViewModel, navController: NavController) {
+    val userState = viewModel.userState.collectAsState()
     Scaffold(
-        bottomBar = { BottomNavBar(viewModel) },
+        bottomBar = {
+            BottomNavBar(
+                userLevel = userState.value.userLevel,
+                navController = navController
+            )
+        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
@@ -36,7 +44,7 @@ fun HomeView(viewModel: HomeViewModel, userLevel: String) {
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            HeaderSection(userLevel)
+            HeaderSection(userState.value.username)
             Spacer(modifier = Modifier.height(24.dp))
             SummarySection()
             Spacer(modifier = Modifier.height(32.dp))
@@ -47,7 +55,7 @@ fun HomeView(viewModel: HomeViewModel, userLevel: String) {
 }
 
 @Composable
-fun HeaderSection(roleName: String) {
+fun HeaderSection(userName: String) {
     Surface(
         color = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp),
@@ -57,16 +65,10 @@ fun HeaderSection(roleName: String) {
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 40.dp)
         ) {
             Text(
-                text = "Hola, $roleName",
-                color = MaterialTheme.colorScheme.onPrimary,
+                text = "Hola, $userName",
+                color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "martes, 26 de mayo de 2026",
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                fontSize = 14.sp
             )
         }
     }
@@ -236,8 +238,7 @@ fun HomeViewPreview() {
     PointOfSaleTheme(darkTheme = false) {
         HomeView(viewModel {
             HomeViewModel()
-        },
-        userLevel = "user")
+        }, rememberNavController())
     }
 }
 
@@ -247,7 +248,6 @@ fun HomeViewDarkPreview() {
     PointOfSaleTheme(darkTheme = true) {
         HomeView(viewModel {
             HomeViewModel()
-        },
-        userLevel = "admin")
+        }, rememberNavController())
     }
 }

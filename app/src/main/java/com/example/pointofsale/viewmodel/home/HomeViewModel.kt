@@ -1,42 +1,38 @@
 package com.example.pointofsale.viewmodel.home
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.pointofsale.model.repository.AuthRepository
+import com.example.pointofsale.model.repository.UserRepository
 import com.example.pointofsale.model.entities.User
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class HomeViewModel():  ViewModel(){
-    val userState = MutableStateFlow(User())
-
-    private val allItems = listOf(
-        Triple("Inicio", Icons.Default.Home, "home"),
-        Triple("POS", Icons.Default.ShoppingCart, "pos"),
-        Triple("Productos", Icons.Default.Inventory, "products"),
-        Triple("Reportes", Icons.Default.BarChart, "reports"),
-        Triple("Usuarios", Icons.Default.People, "users"),
-        Triple("Perfil", Icons.Default.AccountCircle, "profile")
+class HomeViewModel(
+    authRepository: AuthRepository = AuthRepository(),
+    private val userRepository: UserRepository = UserRepository()
+) : ViewModel() {
+    private val firebaseUser = authRepository.getCurrentUser()
+    private val _userState = MutableStateFlow(
+        User(
+            uid = firebaseUser?.uid ?: "",
+            username = firebaseUser?.displayName ?: "Usuario",
+            email = firebaseUser?.email ?: ""
+        )
     )
+    val userState = _userState.asStateFlow()
 
-    private val _filteredItems =
-        MutableStateFlow<List<Triple<String, ImageVector, String>>>(emptyList())
-    val filteredItems: StateFlow<List<Triple<String, ImageVector, String>>> = _filteredItems
+    init {
+        fetchUserProfile()
+    }
 
-    fun filterNavigationMenu() {
-        val userLevel = userState.value.userLevel
-        _filteredItems.value = allItems.filter { item ->
-            when (userLevel) {
-                "admin" -> true
-                "special" -> item.first in listOf("Inicio", "Reportes", "Perfil")
-                "user" -> item.first in listOf("Inicio", "POS", "Productos", "Perfil")
-                else -> item.first == "Inicio"
+    private fun fetchUserProfile() {
+        firebaseUser?.uid?.let { uid ->
+            viewModelScope.launch {
+                userRepository.getUserProfile(uid)?.let { profile ->
+                    _userState.value = profile
+                }
             }
         }
     }
