@@ -2,4 +2,8 @@
 <resources>
 
     <style name="Theme.PointOfSale" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.PointOfSale.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#121212</item>
+        <item name="postSplashScreenTheme">@style/Theme.PointOfSale</item>
+    </style>
 </resources>

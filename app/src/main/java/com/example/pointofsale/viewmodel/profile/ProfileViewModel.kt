@@ -1,4 +1,4 @@
-package com.example.pointofsale.viewmodel.home
+package com.example.pointofsale.viewmodel.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,26 +8,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
+class ProfileViewModel(
     private val authRepository: AuthRepository = AuthRepository()
 ) : ViewModel() {
-    
+
     private val _userState = MutableStateFlow(User())
     val userState = _userState.asStateFlow()
 
     init {
-        fetchUserProfile()
+        loadUserProfile()
     }
 
-    fun fetchUserProfile() {
+    private fun loadUserProfile() {
         viewModelScope.launch {
-            authRepository.getCurrentUserProfile()?.let { profile ->
-                _userState.value = profile
+            authRepository.getCurrentUserProfile()?.let { user ->
+                _userState.value = user
             }
         }
     }
 
-    fun clearState() {
-        _userState.value = User()
+    fun logout() {
+        authRepository.logout()
     }
 }

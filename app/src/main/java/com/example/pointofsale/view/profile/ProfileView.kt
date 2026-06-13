@@ -1,99 +1,114 @@
 package com.example.pointofsale.view.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.pointofsale.core.components.BottomNavBar
-import com.example.pointofsale.core.theme.PointOfSaleTheme
+import com.example.pointofsale.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun ProfileView(navController: NavController) {
-    // Datos de ejemplo basados en las capturas de pantalla
-    val userName = "Administrador Sistema"
-    val userEmail = "admin@pos.com"
-    val userHandle = "@admin"
-    val userRole = "Administrador"
-    val registrationDate = "31 de diciembre de 2023"
+fun ProfileView(
+    viewModel: ProfileViewModel,
+    navController: NavController,
+    onLogout: () -> Unit = {}
+) {
+    val userState by viewModel.userState.collectAsState()
 
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                userLevel = "admin", // Esto debería venir de un ViewModel en el futuro
-                navController = navController
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        ProfileHeaderSection()
+        
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+                .fillMaxWidth()
         ) {
-            ProfileHeaderSection()
-            
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-            ) {
-                PersonalInfoCard(
-                    name = userName,
-                    email = userEmail,
-                    handle = userHandle,
-                    role = userRole,
-                    registrationDate = registrationDate
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                LogoutButton()
-                
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            PersonalInfoCard(
+                name = userState.username,
+                email = userState.email,
+                role = userState.userLevel.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+                onLogout = {
+                    viewModel.logout()
+                    onLogout()
+                    navController.navigate("login") {
+                        popUpTo(0)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
 fun ProfileHeaderSection() {
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
-        shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp),
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 40.dp)
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Surface(
+                modifier = Modifier.size(80.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.padding(16.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Mi Perfil",
-                color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Gestiona tu información personal",
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 16.sp
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }
@@ -103,252 +118,135 @@ fun ProfileHeaderSection() {
 fun PersonalInfoCard(
     name: String,
     email: String,
-    handle: String,
     role: String,
-    registrationDate: String
+    onLogout: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        shape = RoundedCornerShape(28.dp)
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp)
-        ) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text(
-                        text = "Información Personal",
+                        text = name.ifEmpty { "Usuario" },
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Datos de tu cuenta",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 14.sp
                     )
                 }
+                
                 IconButton(
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
+                    onClick = { /* Implement edit name logic */ },
                     modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
-                    contentAlignment = Alignment.Center
+                        .size(40.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            shape = CircleShape
+                        )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = Color.Black
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(
-                        text = name,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = handle,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 16.sp
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar nombre",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Shield,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Rol:",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        text = role,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
             HorizontalDivider(
+                modifier = Modifier.padding(vertical = 24.dp),
+                thickness = 1.dp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
             )
-            Spacer(modifier = Modifier.height(24.dp))
 
-            ProfileField(label = "Nombre Completo", value = name, icon = Icons.Default.Person)
-            Spacer(modifier = Modifier.height(16.dp))
-            ProfileField(label = "Correo Electrónico", value = email, icon = Icons.Default.Email)
-            Spacer(modifier = Modifier.height(16.dp))
-            ProfileField(label = "Fecha de Registro", value = registrationDate, icon = Icons.Default.CalendarToday)
+            ProfileField(
+                label = "Correo Electrónico",
+                value = email.ifEmpty { "sin email" },
+                icon = Icons.Default.Email
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            ProfileField(
+                label = "Nivel de Acceso",
+                value = role,
+                icon = Icons.Default.Shield
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Save,
-                        contentDescription = null,
-                        tint = Color.Black
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Guardar Cambios",
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                OutlinedButton(
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.weight(0.7f),
-                    shape = RoundedCornerShape(16.dp),
-                    contentPadding = PaddingValues(16.dp),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                    )
-                ) {
-                    Text(
-                        text = "Cancelar",
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
+            LogoutButton(onClick = onLogout)
         }
     }
 }
 
 @Composable
-fun ProfileField(label: String, value: String, icon: ImageVector) {
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+fun ProfileField(
+    label: String,
+    value: String,
+    icon: ImageVector
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = label,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp
+                modifier = Modifier.padding(8.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(12.dp),
-            border = androidx.compose.foundation.BorderStroke(
-                1.dp,
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        ) {
             Text(
                 text = value,
-                modifier = Modifier.padding(16.dp),
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
 }
 
 @Composable
-fun LogoutButton() {
+fun LogoutButton(onClick: () -> Unit) {
     Button(
-        onClick = { /* TODO */ },
-        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF8C4A4A).copy(alpha = 0.9f)
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
         ),
-        shape = RoundedCornerShape(20.dp),
-        contentPadding = PaddingValues(18.dp)
+        shape = MaterialTheme.shapes.large
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.Logout,
-            contentDescription = null,
-            tint = Color.White
+            contentDescription = null
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = "Cerrar Sesión",
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
         )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun ProfileViewPreview() {
-    PointOfSaleTheme(darkTheme = false) {
-        ProfileView(rememberNavController())
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun ProfileViewDarkPreview() {
-    PointOfSaleTheme(darkTheme = true) {
-        ProfileView(rememberNavController())
     }
 }

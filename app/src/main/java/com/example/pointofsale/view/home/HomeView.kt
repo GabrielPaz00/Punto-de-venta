@@ -1,13 +1,29 @@
 package com.example.pointofsale.view.home
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingDown
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -15,239 +31,214 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.pointofsale.core.components.BottomNavBar
-import com.example.pointofsale.core.theme.PointOfSaleTheme
 import com.example.pointofsale.viewmodel.home.HomeViewModel
-
 
 @Composable
 fun HomeView(viewModel: HomeViewModel, navController: NavController) {
     val userState = viewModel.userState.collectAsState()
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                userLevel = userState.value.userLevel,
-                navController = navController
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-        ) {
-            HeaderSection(userState.value.username)
-            Spacer(modifier = Modifier.height(24.dp))
-            SummarySection()
-            Spacer(modifier = Modifier.height(32.dp))
-            QuickAccessSection()
-            Spacer(modifier = Modifier.height(32.dp))
-        }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        HeaderSection(userState.value.username)
+        Spacer(modifier = Modifier.height(24.dp))
+        SummarySection()
+        Spacer(modifier = Modifier.height(32.dp))
+        QuickAccessSection()
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
 @Composable
-fun HeaderSection(userName: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
-        shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp),
-        modifier = Modifier.fillMaxWidth()
+fun HeaderSection(username: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 40.dp)
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Hola, ",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                UsernameText(username)
+            }
+        }
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.size(48.dp)
         ) {
-            Text(
-                text = "Hola, $userName",
-                color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Profile",
+                modifier = Modifier.padding(8.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }
+}
+@Composable
+fun UsernameText(username: String){
+    Text(
+        text = username.ifEmpty { "Usuario" },
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary
+    )
 }
 
 @Composable
 fun SummarySection() {
-    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = "Resumen de Hoy",
-            fontSize = 20.sp,
+            text = "Resumen de hoy",
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "Ventas del Día",
-                value = "$1,234.50",
-                icon = Icons.Default.AttachMoney,
+                title = "Ventas",
+                value = "$1,240.00",
+                icon = Icons.AutoMirrored.Filled.TrendingUp,
                 iconColor = MaterialTheme.colorScheme.primary
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "Productos Vendidos",
-                value = "48",
-                icon = Icons.Default.Inventory2,
+                title = "Órdenes",
+                value = "24",
+                icon = Icons.Default.Receipt,
                 iconColor = MaterialTheme.colorScheme.secondary
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "Stock Bajo",
-                value = "12",
-                icon = Icons.AutoMirrored.Filled.TrendingDown,
-                iconColor = Color(0xFFF44336)
-            )
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "Clientes",
-                value = "23",
-                icon = Icons.Default.Group,
-                iconColor = Color(0xFF2196F3)
             )
         }
     }
 }
 
 @Composable
-fun StatCard(modifier: Modifier, title: String, value: String, icon: ImageVector, iconColor: Color) {
+fun StatCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    icon: ImageVector,
+    iconColor: Color
+) {
     Card(
-        modifier = modifier.aspectRatio(0.85f),
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(28.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Surface(
-                color = iconColor.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.size(44.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.padding(10.dp)
-                )
-            }
-            Column {
-                Text(
-                    text = title,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = value,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+        Column(modifier = Modifier.padding(16.dp)) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
 
 @Composable
 fun QuickAccessSection() {
-    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = "Accesos Rápidos",
-            fontSize = 20.sp,
+            text = "Acceso Rápido",
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        QuickAccessButton(
-            title = "Nueva Venta",
-            subtitle = "Procesar una venta rápida",
-            icon = Icons.Default.AttachMoney,
-            containerColor = Color(0xFFA076F9),
-            contentColor = Color.Black
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        QuickAccessButton(
-            title = "Agregar Producto",
-            subtitle = "Registrar nuevo inventario",
-            icon = Icons.Default.Inventory2,
-            containerColor = Color(0xFF26C6DA),
-            contentColor = Color.Black
-        )
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            QuickAccessButton(
+                label = "Nueva Venta",
+                subtitle = "POS",
+                icon = Icons.Default.AddShoppingCart,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+            QuickAccessButton(
+                label = "Inventario",
+                subtitle = "Stock",
+                icon = Icons.Default.Inventory2,
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary
+            )
+        }
     }
 }
 
 @Composable
 fun QuickAccessButton(
-    title: String,
+    label: String,
     subtitle: String,
     icon: ImageVector,
     containerColor: Color,
     contentColor: Color
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        shape = RoundedCornerShape(32.dp)
+    Surface(
+        modifier = Modifier
+            .width(150.dp)
+            .height(100.dp),
+        shape = MaterialTheme.shapes.large,
+        color = containerColor,
+        onClick = { /* Action */ }
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .padding(24.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(12.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, color = contentColor, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = subtitle, color = contentColor.copy(alpha = 0.6f), fontSize = 14.sp)
-            }
-            Surface(
-                color = Color.Black.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.size(64.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = contentColor,
-                    modifier = Modifier.padding(16.dp)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(28.dp)
+            )
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = contentColor
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = contentColor.copy(alpha = 0.7f)
                 )
             }
         }
-    }
-}
-
-
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun HomeViewPreview() {
-    PointOfSaleTheme(darkTheme = false) {
-        HomeView(viewModel {
-            HomeViewModel()
-        }, rememberNavController())
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun HomeViewDarkPreview() {
-    PointOfSaleTheme(darkTheme = true) {
-        HomeView(viewModel {
-            HomeViewModel()
-        }, rememberNavController())
     }
 }

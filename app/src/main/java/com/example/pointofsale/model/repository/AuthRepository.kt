@@ -34,4 +34,19 @@ class AuthRepository(
     fun logout() {
         auth.signOut()
     }
+
+    suspend fun getCurrentUserProfile(): User? {
+        val firebaseUser = auth.currentUser ?: return null
+
+        // Try to get the complete profile from Firestore
+        val profile = userRepository.getUserProfile(firebaseUser.uid)
+
+        // If it exists in Firestore, return it.
+        // Otherwise, return a basic User object with Firebase Auth data.
+        return profile ?: User(
+            uid = firebaseUser.uid,
+            username = firebaseUser.displayName ?: "Usuario",
+            email = firebaseUser.email ?: ""
+        )
+    }
 }
