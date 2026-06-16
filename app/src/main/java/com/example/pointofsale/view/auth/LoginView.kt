@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pointofsale.core.components.AppLogo
-import com.example.pointofsale.viewmodel.auth.AuthUiState
+import com.example.pointofsale.viewmodel.auth.LoginUiState
 import com.example.pointofsale.viewmodel.auth.LoginViewModel
 
 
@@ -39,7 +39,7 @@ fun LoginView(
 
 @Composable
 fun LoginContent(
-    uiState: AuthUiState,
+    uiState: LoginUiState,
     onLoginClick: (String, String) -> Unit,
     onLoginSuccess: (String) -> Unit,
     onClearError: () -> Unit

@@ -49,9 +49,18 @@ class UserRepository(
     suspend fun getUserProfile(uid: String): User? {
         return try {
             val document = usersCollection.document(uid).get().await()
-            document.toObject(User::class.java)
+            document.toObject(User::class.java)?.copy(uid = uid)
         } catch (e: Exception) {
             null
+        }
+    }
+
+    suspend fun updateUsername(uid: String, newUsername: String): Result<Boolean> {
+        return try {
+            usersCollection.document(uid).update("username", newUsername).await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

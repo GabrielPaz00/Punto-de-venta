@@ -1,5 +1,6 @@
 package com.example.pointofsale.view.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
@@ -29,9 +32,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,7 +45,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.pointofsale.viewmodel.profile.ProfileUiState
 import com.example.pointofsale.viewmodel.profile.ProfileViewModel
 
 @Composable
@@ -50,6 +57,15 @@ fun ProfileView(
     onLogout: () -> Unit = {}
 ) {
     val userState by viewModel.userState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.clearErrorMessage()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -67,6 +83,10 @@ fun ProfileView(
                 name = userState.username,
                 email = userState.email,
                 role = userState.userLevel.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+                uiState = uiState,
+                onEditClick = { viewModel.toggleEditMode() },
+                onNameChange = { viewModel.onNameChange(it) },
+                updateUserProfile = { viewModel.updateUserProfile() },
                 onLogout = {
                     viewModel.logout()
                     onLogout()
@@ -119,6 +139,10 @@ fun PersonalInfoCard(
     name: String,
     email: String,
     role: String,
+    uiState: ProfileUiState,
+    onEditClick: () -> Unit,
+    onNameChange: (String) -> Unit,
+    updateUserProfile: () -> Unit,
     onLogout: () -> Unit
 ) {
     Card(
@@ -132,30 +156,60 @@ fun PersonalInfoCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = name.ifEmpty { "Usuario" },
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                
-                IconButton(
-                    onClick = { /* Implement edit name logic */ },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                            shape = CircleShape
+                if (!uiState.isEditing) {
+                    Column {
+                        Text(
+                            text = name.ifEmpty { "Usuario" },
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar nombre",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    }
+                    IconButton(
+                        onClick = onEditClick,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                shape = CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar nombre",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = uiState.name,
+                            onValueChange = onNameChange,
+                            label = { Text("Nombre de usuario") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        IconButton(
+                            onClick = { updateUserProfile() },
+                            enabled = uiState.name.isNotBlank()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Guardar",
+                                tint = if (uiState.name.isNotBlank()) MaterialTheme.colorScheme.primary
+                                       else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            )
+                        }
+                        IconButton(onClick = onEditClick) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Cancelar")
+                        }
+                    }
                 }
             }
 

@@ -17,7 +17,7 @@ sealed class AuthState {
 }
 
 class LaunchViewModel(
-    private val authRepository: AuthRepository = AuthRepository(),
+    private val authRepository: AuthRepository = AuthRepository.getInstance(),
     private val userRepository: UserRepository = UserRepository()
 ) : ViewModel() {
 

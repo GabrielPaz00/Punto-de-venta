@@ -1,13 +1,52 @@
 package com.example.pointofsale.model.repository
 
-import com.google.firebase.auth.FirebaseAuth
 import com.example.pointofsale.model.entities.User
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class AuthRepository(
+class AuthRepository private constructor(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val userRepository: UserRepository = UserRepository()
 ) {
+    private val _userProfile = MutableStateFlow<User?>(null)
+    val userProfile: StateFlow<User?> = _userProfile.asStateFlow()
+
+    private val repositoryScope = CoroutineScope(Dispatchers.IO)
+
+    init {
+        // Listen for auth state changes
+        auth.addAuthStateListener { firebaseAuth ->
+            val firebaseUser = firebaseAuth.currentUser
+            if (firebaseUser == null) {
+                _userProfile.value = null
+            } else {
+                refreshProfile()
+            }
+        }
+    }
+
+    fun refreshProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        repositoryScope.launch {
+            try {
+                val profile = userRepository.getUserProfile(uid)
+                _userProfile.value = profile ?: User(
+                    uid = uid,
+                    username = auth.currentUser?.displayName ?: "Usuario",
+                    email = auth.currentUser?.email ?: ""
+                )
+            } catch (e: Exception) {
+                // Keep previous state or set error
+            }
+        }
+    }
+
     fun getCurrentUser() = auth.currentUser
 
     suspend fun login(email: String, password: String): Result<User> {
@@ -25,6 +64,7 @@ class AuthRepository(
                 throw Exception("Este usuario está desactivado")
             }
 
+            _userProfile.value = userProfile
             Result.success(userProfile)
         } catch (e: Exception) {
             Result.failure(e)
@@ -33,6 +73,7 @@ class AuthRepository(
 
     fun logout() {
         auth.signOut()
+        _userProfile.value = null
     }
 
     suspend fun getCurrentUserProfile(): User? {
@@ -41,12 +82,23 @@ class AuthRepository(
         // Try to get the complete profile from Firestore
         val profile = userRepository.getUserProfile(firebaseUser.uid)
 
-        // If it exists in Firestore, return it.
-        // Otherwise, return a basic User object with Firebase Auth data.
-        return profile ?: User(
+        val finalProfile = profile ?: User(
             uid = firebaseUser.uid,
             username = firebaseUser.displayName ?: "Usuario",
             email = firebaseUser.email ?: ""
         )
+        _userProfile.value = finalProfile
+        return finalProfile
+    }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AuthRepository? = null
+
+        fun getInstance(): AuthRepository {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: AuthRepository().also { INSTANCE = it }
+            }
+        }
     }
 }

@@ -4,30 +4,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pointofsale.model.entities.User
 import com.example.pointofsale.model.repository.AuthRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class HomeViewModel(
-    private val authRepository: AuthRepository = AuthRepository()
+    private val authRepository: AuthRepository = AuthRepository.getInstance()
 ) : ViewModel() {
     
-    private val _userState = MutableStateFlow(User())
-    val userState = _userState.asStateFlow()
+    val userState: StateFlow<User> = authRepository.userProfile
+        .map { it ?: User() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = User()
+        )
 
     init {
-        fetchUserProfile()
+        // El perfil se carga automáticamente en AuthRepository.init o vía refreshProfile
     }
 
     fun fetchUserProfile() {
-        viewModelScope.launch {
-            authRepository.getCurrentUserProfile()?.let { profile ->
-                _userState.value = profile
-            }
-        }
+        authRepository.refreshProfile()
     }
 
     fun clearState() {
-        _userState.value = User()
+        // En una arquitectura reactiva, el "clear" suele venir del logout en el repositorio
     }
 }

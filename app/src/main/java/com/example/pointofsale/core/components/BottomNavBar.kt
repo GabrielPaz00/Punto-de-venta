@@ -28,7 +28,7 @@ fun BottomNavBar(
         NavItem("Inicio", Icons.Default.Home, "home"),
         NavItem("POS", Icons.Default.ShoppingCart, "pos"),
         NavItem("Productos", Icons.Default.Inventory, "products"),
-        NavItem("Reportes", Icons.Default.BarChart, "reports"),
+    //    NavItem("Reportes", Icons.Default.BarChart, "reports"),
         NavItem("Usuarios", Icons.Default.People, "users"),
         NavItem("Perfil", Icons.Default.AccountCircle, "profile")
     )
