@@ -41,18 +41,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pointofsale.viewmodel.profile.ProfileUiState
 import com.example.pointofsale.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun ProfileView(
-    viewModel: ProfileViewModel,
+    viewModel: ProfileViewModel = viewModel(),
     navController: NavController,
     onLogout: () -> Unit = {}
 ) {
@@ -107,7 +109,7 @@ fun ProfileHeaderSection() {
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer),
+            .background(Color.Transparent),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

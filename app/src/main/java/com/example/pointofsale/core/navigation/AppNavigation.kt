@@ -11,8 +11,10 @@ import com.example.pointofsale.core.components.MainLayout
 import com.example.pointofsale.view.home.HomeView
 import com.example.pointofsale.view.auth.LoginView
 import com.example.pointofsale.view.launch.LaunchView
+import com.example.pointofsale.view.product.ProductView
 import com.example.pointofsale.view.profile.ProfileView
 import com.example.pointofsale.viewmodel.home.HomeViewModel
+import com.example.pointofsale.viewmodel.product.ProductViewModel
 import com.example.pointofsale.viewmodel.profile.ProfileViewModel
 
 @Composable
@@ -68,13 +70,13 @@ fun App() {
 
             // Placeholder routes for BottomNavBar items not yet implemented
             composable("pos") { /* Implement POSView */ }
-            composable("products") { /* Implement ProductsView */ }
+            composable("products") {
+                ProductView()
+            }
             composable("reports") { /* Implement ReportsView */ }
             composable("users") { /* Implement UsersView */ }
             composable("profile") {
-                val profileViewModel: ProfileViewModel = viewModel()
                 ProfileView(
-                    viewModel = profileViewModel, 
                     navController = navController,
                     onLogout = {
                         homeViewModel.clearState() // Clear global state on logout

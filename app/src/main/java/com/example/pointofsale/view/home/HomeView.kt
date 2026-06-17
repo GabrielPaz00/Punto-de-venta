@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.pointofsale.viewmodel.home.HomeViewModel
 
 @Composable
@@ -48,7 +49,7 @@ fun HomeView(viewModel: HomeViewModel, navController: NavController) {
         Spacer(modifier = Modifier.height(24.dp))
         SummarySection()
         Spacer(modifier = Modifier.height(32.dp))
-        QuickAccessSection()
+        QuickAccessSection(navController)
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
@@ -167,7 +168,7 @@ fun StatCard(
 }
 
 @Composable
-fun QuickAccessSection() {
+fun QuickAccessSection(navController: NavController) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Acceso Rápido",
@@ -181,18 +182,24 @@ fun QuickAccessSection() {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             QuickAccessButton(
+                modifier = Modifier.weight(1f),
                 label = "Nueva Venta",
                 subtitle = "POS",
                 icon = Icons.Default.AddShoppingCart,
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                navController = navController,
+                route = "products"
             )
             QuickAccessButton(
+                modifier = Modifier.weight(1f),
                 label = "Inventario",
                 subtitle = "Stock",
                 icon = Icons.Default.Inventory2,
                 containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSecondary
+                contentColor = MaterialTheme.colorScheme.onSecondary,
+                navController = navController,
+                route = "products"
             )
         }
     }
@@ -200,19 +207,22 @@ fun QuickAccessSection() {
 
 @Composable
 fun QuickAccessButton(
+    modifier: Modifier,
     label: String,
     subtitle: String,
     icon: ImageVector,
     containerColor: Color,
-    contentColor: Color
+    contentColor: Color,
+    navController: NavController,
+    route: String
 ) {
     Surface(
-        modifier = Modifier
-            .width(150.dp)
+
+        modifier = modifier
             .height(100.dp),
         shape = MaterialTheme.shapes.large,
         color = containerColor,
-        onClick = { /* Action */ }
+        onClick = { navController.navigate(route) }
     ) {
         Column(
             modifier = Modifier
