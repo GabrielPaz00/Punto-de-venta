@@ -1,13 +1,17 @@
 package com.example.pointofsale.core.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -46,7 +50,18 @@ fun BottomNavBar(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val surfaceBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+
     NavigationBar(
+        modifier = Modifier.drawWithContent {
+            drawContent()
+            drawLine(
+                color = surfaceBorderColor,
+                start = Offset(0f, 0f),
+                end = Offset(size.width, 0f),
+                strokeWidth = 0.2.dp.toPx()
+            )
+        },
         containerColor = Color.Transparent,
         tonalElevation = 8.dp
     ) {

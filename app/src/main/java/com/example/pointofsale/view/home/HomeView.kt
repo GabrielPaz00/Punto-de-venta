@@ -30,12 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.draw.drawWithContent
 import com.example.pointofsale.viewmodel.home.HomeViewModel
 
 @Composable
@@ -58,9 +60,19 @@ fun HomeView(viewModel: HomeViewModel, navController: NavController) {
 
 @Composable
 fun HeaderSection(username: String) {
+    val surfaceColor = MaterialTheme.colorScheme.surface
     Surface(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .drawWithContent {
+                drawContent()
+                drawLine(
+                    color = surfaceColor,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
+            strokeWidth = 2.dp.toPx()
+        )
+    },
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
         color = MaterialTheme.colorScheme.surface

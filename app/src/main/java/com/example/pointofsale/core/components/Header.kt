@@ -30,6 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.pointofsale.core.theme.PointOfSaleTheme
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 
 
 @Composable
@@ -41,11 +43,23 @@ fun Header(
     onSearchQueryChange: (String) -> Unit,
     onAddClick: () -> Unit
 ) {
+    val surfaceColor = MaterialTheme.colorScheme.surface
     Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawWithContent {
+                drawContent()
+                drawLine(
+                    color = surfaceColor,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 2.dp.toPx()
+                )
+            },
         color = Color.Transparent,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
-        modifier = Modifier.fillMaxWidth()
+
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 32.dp)
