@@ -13,6 +13,7 @@ import com.example.pointofsale.view.auth.LoginView
 import com.example.pointofsale.view.launch.LaunchView
 import com.example.pointofsale.view.product.ProductView
 import com.example.pointofsale.view.profile.ProfileView
+import com.example.pointofsale.view.users.UsersView
 import com.example.pointofsale.viewmodel.home.HomeViewModel
 import com.example.pointofsale.viewmodel.product.ProductViewModel
 import com.example.pointofsale.viewmodel.profile.ProfileViewModel
@@ -74,7 +75,7 @@ fun App() {
                 ProductView()
             }
             composable("reports") { /* Implement ReportsView */ }
-            composable("users") { /* Implement UsersView */ }
+            composable("users") { UsersView() }
             composable("profile") {
                 ProfileView(
                     navController = navController,
