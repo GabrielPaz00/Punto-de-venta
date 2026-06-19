@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 fun Header(
     title: String,
     subtitle: String? = null,
+    customSubtitle: String? = null,
     icon: ImageVector,
     entityCount: Int,
     searchQuery: String,
@@ -85,10 +86,12 @@ fun Header(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    subtitle?.let {
-                        val subtitleText = "$entityCount ${it.lowercase()} registrados"
+                    val subtitleToShow = customSubtitle ?: subtitle?.let {
+                        "$entityCount ${it.lowercase()} registrados"
+                    }
+                    subtitleToShow?.let {
                         Text(
-                            text = subtitleText,
+                            text = it,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                         )
@@ -145,7 +148,7 @@ fun Header(
                     .fillMaxWidth()
                     .height(52.dp),
                 placeholder = {
-                    val placeholderText = subtitle?.let { "Buscar ${it.lowercase()}..." } ?: "Buscar productos..."
+                    val placeholderText = subtitle?.let { "Buscar ${it.lowercase()}..." } ?: "Buscar usuarios..."
                     Text(
                         text = placeholderText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)

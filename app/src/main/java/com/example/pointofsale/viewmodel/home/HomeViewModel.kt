@@ -13,14 +13,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class HomeSummary(
-    val totalSales: Double = 0.0,
-    val ordersCount: Int = 0
-)
 
 class HomeViewModel(
     private val authRepository: AuthRepository = AuthRepository.getInstance(),
-    private val saleRepository: SaleRepository = SaleRepository()
+    private val saleRepository: SaleRepository = SaleRepository.getInstance()
 ) : ViewModel() {
     
     val userState: StateFlow<User> = authRepository.userProfile
@@ -35,8 +31,16 @@ class HomeViewModel(
     val summaryState: StateFlow<HomeSummary> = _summaryState.asStateFlow()
 
     init {
-        // El perfil se carga automáticamente en AuthRepository.init o vía refreshProfile
         fetchTodaysSummary()
+        observeSaleEvents()
+    }
+
+    private fun observeSaleEvents() {
+        viewModelScope.launch {
+            saleRepository.saleEvents.collect {
+                fetchTodaysSummary()
+            }
+        }
     }
 
     fun fetchTodaysSummary() {

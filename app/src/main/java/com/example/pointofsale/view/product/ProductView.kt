@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pointofsale.core.components.Header
 import com.example.pointofsale.core.components.ProductCard
 import com.example.pointofsale.core.components.StockBadge
+import com.example.pointofsale.core.components.CustomTextField
 import com.example.pointofsale.core.utils.CategoryUtils
 import com.example.pointofsale.model.entities.Product
 import com.example.pointofsale.viewmodel.product.ProductViewModel
@@ -557,27 +558,4 @@ fun DeleteProductButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun CustomTextField(label: String, value: String, onValueChange: (String) -> Unit, placeholder: String, keyboardType: KeyboardType = KeyboardType.Text) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = Color.Gray) },
-            shape = RoundedCornerShape(16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFF252525),
-                focusedContainerColor = Color(0xFF252525),
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color.Transparent,
-                cursorColor = Color.White,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
-        )
-    }
-}
+

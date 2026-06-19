@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pointofsale.model.entities.*
 import com.example.pointofsale.model.repository.*
+import com.example.pointofsale.viewmodel.home.HomeSummary
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -13,7 +14,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class SaleViewModel(
     private val productRepository: ProductRepository = ProductRepository(),
-    private val saleRepository: SaleRepository = SaleRepository(),
+    private val saleRepository: SaleRepository = SaleRepository.getInstance(),
     private val authRepository: AuthRepository = AuthRepository.getInstance()
 ) : ViewModel() {
 

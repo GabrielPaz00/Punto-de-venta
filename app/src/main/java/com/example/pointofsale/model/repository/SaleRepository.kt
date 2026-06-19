@@ -3,15 +3,20 @@ package com.example.pointofsale.model.repository
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.pointofsale.model.entities.Sale
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
 import java.util.Date
 
-class SaleRepository(
+class SaleRepository private constructor(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     private val salesCollection = firestore.collection("sales")
     private val productsCollection = firestore.collection("products")
+
+    private val _saleEvents = MutableSharedFlow<Unit>()
+    val saleEvents = _saleEvents.asSharedFlow()
 
     suspend fun registerSale(sale: Sale): Result<Boolean> {
         return try {
@@ -26,6 +31,8 @@ class SaleRepository(
             }
 
             batch.commit().await()
+            _saleEvents.emit(Unit)
+
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -54,5 +61,16 @@ class SaleRepository(
             set(Calendar.MILLISECOND, 0)
         }
         return calendar.time
+    }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: SaleRepository? = null
+
+        fun getInstance(): SaleRepository {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: SaleRepository().also { INSTANCE = it }
+            }
+        }
     }
 }

@@ -72,6 +72,7 @@ fun SaleView(viewModel: SaleViewModel = viewModel()) {
     ) {
         Header(
             title = "Punto de venta",
+            subtitle = "Productos",
             icon = Icons.Default.ShoppingCart,
             entityCount = products.size,
             searchQuery = searchQuery,

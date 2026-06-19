@@ -38,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.draw.drawWithContent
+import com.example.pointofsale.core.utils.formatWithCommas
 import com.example.pointofsale.viewmodel.home.HomeViewModel
+import com.example.pointofsale.viewmodel.home.HomeSummary
 
 import java.util.Locale
 
@@ -123,7 +125,7 @@ fun UsernameText(username: String){
 }
 
 @Composable
-fun SummarySection(summary: com.example.pointofsale.viewmodel.home.HomeSummary) {
+fun SummarySection(summary: HomeSummary) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Resumen de hoy",
@@ -139,7 +141,7 @@ fun SummarySection(summary: com.example.pointofsale.viewmodel.home.HomeSummary) 
             StatCard(
                 modifier = Modifier.weight(1f),
                 title = "Ventas",
-                value = String.format(Locale.US, "$%.2f", summary.totalSales),
+                value = "$${formatWithCommas(summary.totalSales)}",
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
                 iconColor = MaterialTheme.colorScheme.primary
             )
