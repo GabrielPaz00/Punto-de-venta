@@ -27,7 +27,7 @@ class ProductViewModel(private val repository: ProductRepository = ProductReposi
     private val _isLoading = MutableStateFlow(false)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<ProductUiState> = _searchQuery
+    private val _products = _searchQuery
         .flatMapLatest { query ->
             if (query.isEmpty()) {
                 repository.getAllProductsFlow()
@@ -39,20 +39,36 @@ class ProductViewModel(private val repository: ProductRepository = ProductReposi
         .map { products ->
             _isLoading.value = false
             _errorMessage.value = null
-            ProductUiState(products = products, searchQuery = _searchQuery.value, isLoading = false)
+            products
         }
         .catch { e ->
             _isLoading.value = false
             _errorMessage.value = e.message ?: "Error desconocido"
-            emit(ProductUiState(isLoading = false, errorMessage = _errorMessage.value, searchQuery = _searchQuery.value))
+            emit(emptyList())
         }
-        .combine(_isLoading) { state, loading -> state.copy(isLoading = loading) }
-        .combine(_errorMessage) { state, error -> state.copy(errorMessage = error) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ProductUiState(isLoading = true)
+            initialValue = emptyList()
         )
+
+    val uiState: StateFlow<ProductUiState> = combine(
+        _products,
+        _searchQuery,
+        _isLoading,
+        _errorMessage
+    ) { products, query, loading, error ->
+        ProductUiState(
+            products = products,
+            searchQuery = query,
+            isLoading = loading,
+            errorMessage = error
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ProductUiState(isLoading = true)
+    )
 
     private val _selectedProduct = MutableStateFlow<Product?>(null)
     val selectedProduct: StateFlow<Product?> = _selectedProduct.asStateFlow()
