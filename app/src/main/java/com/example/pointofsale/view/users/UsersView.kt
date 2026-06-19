@@ -70,6 +70,7 @@ import com.example.pointofsale.viewmodel.product.ProductViewModel
 
 @Composable
 fun UsersView() {
+    var searchQuery by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -78,10 +79,11 @@ fun UsersView() {
     ) {
         Header(
             title = "Usuarios",
+            subtitle = "Usuarios",
             icon = Icons.Default.PersonAdd,
             entityCount = 0,
-            searchQuery = "",
-            onSearchQueryChange = {  },
+            searchQuery = searchQuery,
+            onSearchQueryChange = { searchQuery = it },
             onAddClick = {  }
         )
 

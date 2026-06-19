@@ -34,14 +34,23 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+
 @Composable
 fun Header(
     title: String,
+    subtitle: String? = null,
     icon: ImageVector,
     entityCount: Int,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    badgeCount: Int = 0
 ) {
     val surfaceColor = MaterialTheme.colorScheme.surface
     Surface(
@@ -76,12 +85,14 @@ fun Header(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    val subtitle = "$entityCount ${title.lowercase()} registrados"
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
-                    )
+                    subtitle?.let {
+                        val subtitleText = "$entityCount ${it.lowercase()} registrados"
+                        Text(
+                            text = subtitleText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                        )
+                    }
                 }
 
                 Surface(
@@ -91,13 +102,38 @@ fun Header(
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
                     modifier = Modifier.size(48.dp)
                 ) {
-                    val descriptionIcon = "Agregar ${title.lowercase()}"
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = descriptionIcon,
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(12.dp)
-                    )
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        val descriptionIcon = "Agregar ${title.lowercase()}"
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = descriptionIcon,
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(12.dp)
+                        )
+
+                        if (badgeCount > 0) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = (-2).dp, y = 2.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = if (badgeCount > 99) "99+" else badgeCount.toString(),
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -109,8 +145,9 @@ fun Header(
                     .fillMaxWidth()
                     .height(52.dp),
                 placeholder = {
+                    val placeholderText = subtitle?.let { "Buscar ${it.lowercase()}..." } ?: "Buscar productos..."
                     Text(
-                        "Buscar ${title.lowercase()}...",
+                        text = placeholderText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 },
@@ -171,6 +208,7 @@ fun HeaderPreviewContent() {
         // Ejemplo para Productos
         Header(
             title = "Productos",
+            subtitle = "Productos",
             icon = Icons.Default.Add,
             entityCount = 15,
             searchQuery = "",
@@ -183,6 +221,7 @@ fun HeaderPreviewContent() {
         // Ejemplo para Usuarios (con título y subtítulo que pediste)
         Header(
             title = "Usuarios",
+            subtitle = "Usuarios",
             icon = Icons.Default.PersonAdd,
             entityCount = 25,
             searchQuery = "",

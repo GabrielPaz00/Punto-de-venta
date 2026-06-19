@@ -3,10 +3,13 @@ package com.example.pointofsale.core.utils
 import java.text.NumberFormat
 import java.util.Locale
 
-fun formatWithCommas(value: Double): String {
-    val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
+private val priceFormatter: NumberFormat by lazy {
+    NumberFormat.getNumberInstance(Locale.US).apply {
         minimumFractionDigits = 2
         maximumFractionDigits = 2
     }
-    return formatter.format(value)
+}
+
+fun formatWithCommas(value: Double): String {
+    return priceFormatter.format(value)
 }

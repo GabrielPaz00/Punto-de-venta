@@ -40,9 +40,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.draw.drawWithContent
 import com.example.pointofsale.viewmodel.home.HomeViewModel
 
+import java.util.Locale
+
 @Composable
 fun HomeView(viewModel: HomeViewModel, navController: NavController) {
     val userState = viewModel.userState.collectAsState()
+    val summaryState = viewModel.summaryState.collectAsState()
     
     Column(
         modifier = Modifier
@@ -51,7 +54,7 @@ fun HomeView(viewModel: HomeViewModel, navController: NavController) {
     ) {
         HeaderSection(userState.value.username)
         Spacer(modifier = Modifier.height(24.dp))
-        SummarySection()
+        SummarySection(summaryState.value)
         Spacer(modifier = Modifier.height(32.dp))
         QuickAccessSection(navController)
         Spacer(modifier = Modifier.height(32.dp))
@@ -120,7 +123,7 @@ fun UsernameText(username: String){
 }
 
 @Composable
-fun SummarySection() {
+fun SummarySection(summary: com.example.pointofsale.viewmodel.home.HomeSummary) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Resumen de hoy",
@@ -136,14 +139,14 @@ fun SummarySection() {
             StatCard(
                 modifier = Modifier.weight(1f),
                 title = "Ventas",
-                value = "$1,240.00",
+                value = String.format(Locale.US, "$%.2f", summary.totalSales),
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
                 iconColor = MaterialTheme.colorScheme.primary
             )
             StatCard(
                 modifier = Modifier.weight(1f),
                 title = "Órdenes",
-                value = "24",
+                value = summary.ordersCount.toString(),
                 icon = Icons.Default.Receipt,
                 iconColor = MaterialTheme.colorScheme.secondary
             )
@@ -210,7 +213,7 @@ fun QuickAccessSection(navController: NavController) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 navController = navController,
-                route = "products"
+                route = "pos"
             )
             QuickAccessButton(
                 modifier = Modifier.weight(1f),

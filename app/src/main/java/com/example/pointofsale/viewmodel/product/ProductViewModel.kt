@@ -4,68 +4,61 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pointofsale.model.entities.Product
 import com.example.pointofsale.model.repository.ProductRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
-
 class ProductViewModel(private val repository: ProductRepository = ProductRepository()) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProductUiState())
-    val uiState: StateFlow<ProductUiState> = _uiState.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    private val _isLoading = MutableStateFlow(false)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<ProductUiState> = _searchQuery
+        .flatMapLatest { query ->
+            if (query.isEmpty()) {
+                repository.getAllProductsFlow()
+            } else {
+                repository.searchProductsByName(query)
+            }
+        }
+        .onStart { _isLoading.value = true }
+        .map { products ->
+            _isLoading.value = false
+            _errorMessage.value = null
+            ProductUiState(products = products, searchQuery = _searchQuery.value, isLoading = false)
+        }
+        .catch { e ->
+            _isLoading.value = false
+            _errorMessage.value = e.message ?: "Error desconocido"
+            emit(ProductUiState(isLoading = false, errorMessage = _errorMessage.value, searchQuery = _searchQuery.value))
+        }
+        .combine(_isLoading) { state, loading -> state.copy(isLoading = loading) }
+        .combine(_errorMessage) { state, error -> state.copy(errorMessage = error) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ProductUiState(isLoading = true)
+        )
 
     private val _selectedProduct = MutableStateFlow<Product?>(null)
     val selectedProduct: StateFlow<Product?> = _selectedProduct.asStateFlow()
 
-    init {
-        getAllProducts()
-    }
-
-    private fun getAllProducts() {
-        _uiState.update { it.copy(isLoading = true) }
-        viewModelScope.launch {
-            try {
-                repository.getAllProductsFlow().collectLatest { products ->
-                    _uiState.update { 
-                        it.copy(
-                            products = products,
-                            isLoading = false,
-                            errorMessage = null
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                val errorMsg = e.cause?.message ?: e.message ?: "Error desconocido"
-                _uiState.update { 
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = errorMsg
-                    )
-                }
-            }
-        }
-    }
-
     fun searchProducts(query: String) {
-        _uiState.update { it.copy(searchQuery = query, isLoading = true) }
-        viewModelScope.launch {
-            if (query.isEmpty()) {
-                getAllProducts()
-            } else {
-                repository.searchProductsByName(query).collectLatest { products ->
-                    _uiState.update { 
-                        it.copy(
-                            products = products,
-                            isLoading = false
-                        )
-                    }
-                }
-            }
-        }
+        _searchQuery.value = query
     }
 
     fun getProduct(id: String) {

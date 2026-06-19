@@ -2,7 +2,6 @@ package com.example.pointofsale.view.product
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +25,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -45,7 +42,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,22 +49,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pointofsale.core.utils.formatWithCommas
 import com.example.pointofsale.core.components.Header
+import com.example.pointofsale.core.components.ProductCard
+import com.example.pointofsale.core.components.StockBadge
+import com.example.pointofsale.core.utils.CategoryUtils
 import com.example.pointofsale.model.entities.Product
 import com.example.pointofsale.viewmodel.product.ProductViewModel
 
 @Composable
 fun ProductView(viewModel: ProductViewModel = viewModel()) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val products = uiState.products
     
     var showAddModal by remember { mutableStateOf(false) }
@@ -81,6 +79,7 @@ fun ProductView(viewModel: ProductViewModel = viewModel()) {
     ) {
         Header(
             title = "Productos",
+            subtitle = "Productos",
             icon = Icons.Default.Add,
             entityCount = products.size,
             searchQuery = uiState.searchQuery,
@@ -88,31 +87,34 @@ fun ProductView(viewModel: ProductViewModel = viewModel()) {
             onAddClick = { showAddModal = true }
         )
 
-        if (uiState.isLoading && products.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            }
-        } else if (uiState.errorMessage != null && products.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "Error: ${uiState.errorMessage}",
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (uiState.errorMessage != null && products.isEmpty()) {
+                Box(modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
-                contentPadding = PaddingValues(top = 24.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(products) { product ->
-                    ProductItem(
-                        product = product,
-                        onClick = { productToAdjust = product }
+                    .padding(24.dp), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Error: ${uiState.errorMessage}",
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
+                    contentPadding = PaddingValues(top = 24.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(products, key = { it.id }) { product ->
+                        ProductCard(
+                            product = product,
+                            onClick = { productToAdjust = product },
+                            action = {
+                                StockBadge(stock = product.stock)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -132,6 +134,10 @@ fun ProductView(viewModel: ProductViewModel = viewModel()) {
         StockAdjustmentModal(
             product = product,
             onDismiss = { productToAdjust = null },
+            onDelete = {
+                viewModel.deleteProduct(product.id)
+                productToAdjust = null
+            },
             onConfirm = { newStock ->
                 viewModel.updateStock(product.id, newStock)
                 productToAdjust = null
@@ -147,7 +153,7 @@ fun AddProductModal(onDismiss: () -> Unit, onConfirm: (Product) -> Unit) {
     var price by remember { mutableStateOf("") }
     var stock by remember { mutableStateOf("") }
 
-    val categories = listOf("Electrónica", "Accesorios", "Audio", "Almacenamiento", "Componentes")
+    val categories = CategoryUtils.categories
     var expanded by remember { mutableStateOf(false) }
 
     Dialog(
@@ -196,12 +202,16 @@ fun AddProductModal(onDismiss: () -> Unit, onConfirm: (Product) -> Unit) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedCard(
                         onClick = { expanded = true },
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
                         colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFF252525)),
                         border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.5f))
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -233,7 +243,9 @@ fun AddProductModal(onDismiss: () -> Unit, onConfirm: (Product) -> Unit) {
                     onClick = {
                         onConfirm(Product(name = name, category = category, price = price.toDoubleOrNull() ?: 0.0, stock = stock.toIntOrNull() ?: 0))
                     },
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
@@ -245,8 +257,21 @@ fun AddProductModal(onDismiss: () -> Unit, onConfirm: (Product) -> Unit) {
 }
 
 @Composable
-fun StockAdjustmentModal(product: Product, onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
+fun StockAdjustmentModal(product: Product, onDelete: () -> Unit, onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
     var adjustmentAmount by remember { mutableIntStateOf(0) }
+
+    val currentCalculatedStock = product.stock + adjustmentAmount
+    val dynamicDecreaseAmount = when {
+        currentCalculatedStock >= 10 -> -10
+        currentCalculatedStock >= 5 -> -5
+        else -> -1
+    }
+
+    val handleQuickAdjust = { amount: Int ->
+        val potentialAdjustment = adjustmentAmount + amount
+        adjustmentAmount = potentialAdjustment.coerceAtLeast(-product.stock)
+    }
+
     val newStock = (product.stock + adjustmentAmount).coerceAtLeast(0)
     
     Dialog(
@@ -264,7 +289,6 @@ fun StockAdjustmentModal(product: Product, onDismiss: () -> Unit, onConfirm: (In
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Header con mejor alineación
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.align(Alignment.CenterStart)) {
                         Text(
@@ -337,17 +361,28 @@ fun StockAdjustmentModal(product: Product, onDismiss: () -> Unit, onConfirm: (In
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                // Ajuste rápido en una sola fila horizontal
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    QuickAdjustButton(-5, modifier = Modifier.weight(1f)) {
-                        adjustmentAmount -= 5
+                    if (newStock <= 0) {
+                        DeleteProductButton(
+                            modifier = Modifier.weight(1f),
+                            onClick = onDelete
+                        )
+                    } else {
+                        QuickAdjustButton(
+                            amount = dynamicDecreaseAmount,
+                            modifier = Modifier.weight(1f),
+                            onClick = { handleQuickAdjust(dynamicDecreaseAmount) }
+                        )
                     }
-                    QuickAdjustButton(5, modifier = Modifier.weight(1f)) {
-                        adjustmentAmount += 5
-                    }
+                    QuickAdjustButton(
+                        amount = 10,
+                        modifier = Modifier.weight(1f),
+                        onClick = { handleQuickAdjust(10) }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -365,7 +400,7 @@ fun StockAdjustmentModal(product: Product, onDismiss: () -> Unit, onConfirm: (In
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     IconButton(
-                        onClick = { adjustmentAmount-- },
+                        onClick = { if (newStock > 0) adjustmentAmount-- },
                         modifier = Modifier
                             .size(48.dp)
                             .background(Color(0xFF252525), CircleShape)
@@ -497,6 +532,30 @@ fun QuickAdjustButton(amount: Int, modifier: Modifier = Modifier, onClick: () ->
         }
     }
 }
+@Composable
+fun DeleteProductButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    OutlinedCard(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
+        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Borrar",
+                color = Color(0xFFE57373),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
 
 @Composable
 fun CustomTextField(label: String, value: String, onValueChange: (String) -> Unit, placeholder: String, keyboardType: KeyboardType = KeyboardType.Text) {
@@ -520,115 +579,5 @@ fun CustomTextField(label: String, value: String, onValueChange: (String) -> Uni
                 unfocusedTextColor = Color.White
             )
         )
-    }
-}
-
-@Composable
-fun ProductItem(product: Product, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Inventory2,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = product.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (product.stock <= 5) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Stock bajo",
-                            tint = Color(0xFFE57373),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-                Text(
-                    text = product.category,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "$${formatWithCommas(product.price)}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    StockBadge(stock = product.stock, isLow = product.stock <= 5)
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun StockBadge(stock: Int, isLow: Boolean) {
-    val contentColor = if (isLow) Color(0xFFFFB74D) else Color(0xFF81C784)
-    val containerColor = contentColor.copy(alpha = 0.12f)
-
-    Surface(
-        color = containerColor,
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(6.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(contentColor)
-            )
-            Text(
-                text = "$stock unidades",
-                style = MaterialTheme.typography.labelSmall,
-                color = contentColor,
-                fontWeight = FontWeight.Bold
-            )
-        }
     }
 }

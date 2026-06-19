@@ -1,17 +1,25 @@
 package com.example.pointofsale.core.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,9 +38,8 @@ fun BottomNavBar(
 ) {
     val allItems = listOf(
         NavItem("Inicio", Icons.Default.Home, "home"),
-        NavItem("POS", Icons.Default.ShoppingCart, "pos"),
+        NavItem("Venta", Icons.Default.ShoppingCart, "pos"),
         NavItem("Productos", Icons.Default.Inventory, "products"),
-    //    NavItem("Reportes", Icons.Default.BarChart, "reports"),
         NavItem("Usuarios", Icons.Default.People, "users"),
         NavItem("Perfil", Icons.Default.AccountCircle, "profile")
     )
@@ -41,7 +48,7 @@ fun BottomNavBar(
         allItems.filter { item ->
             when (userLevel) {
                 "admin" -> true
-                "user" -> item.label in listOf("Inicio", "POS", "Productos", "Perfil")
+                "user" -> item.label in listOf("Inicio", "Venta", "Productos", "Perfil")
                 else -> item.label == "Inicio"
             }
         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BytePOS</string>
+    <string name="app_name">Punto de venta</string>
     <string name="app_logo_content_description">App Logo</string>
     <string name="login_title">Sistema de Inventario</string>
     <string name="login_subtitle">Gestión de ventas y productos</string>
