@@ -26,12 +26,12 @@ Contiene las pantallas (`.kt`) que interactúan directamente con el usuario:
 
 ### 2. Lógica de Presentación (ViewModels)
 Intermediarios que procesan acciones y observan estados:
-* **`AuthViewModel`**: Orquesta el inicio y cierre de sesión.
+* **`LoginViewModel`**: Orquesta el inicio y cierre de sesión.
 * **`ProfileViewModel`**: Administra la sesión activa.
-* **`UserViewModel`**: Lógica de gestión de roles y cuentas.
+* **`UsersViewModel`**: Lógica de gestión de roles y cuentas.
 * **`HomeViewModel`**: Agregación de métricas para el Dashboard.
 * **`ProductViewModel`**: CRUD de inventario y ajustes de stock.
-* **`PosViewModel`**: Estado del carrito y ejecución de la venta.
+* **`SaleViewModel`**: Estado del carrito y ejecución de la venta.
 
 ### 3. Capa de Datos (Modelos y Repositorios)
 Centraliza la conexión con la nube para sincronización en tiempo real:
@@ -130,3 +130,18 @@ Casos de prueba para evaluar la sincronización entre módulos.
  **PRECONDICIONES** | `SaleViewModel` y `ProductRepository` configurados. |
  **PASOS A SEGUIR** | 1. Realizar venta de un producto.<br>2. Verificar descuento en repositorio de productos. |
  **RESULTADO ESPERADO** | La venta se registra y el stock disminuye proporcionalmente. |
+
+---
+
+## 📊 Informe de Resultados de Pruebas Unitarias
+
+| Módulo | Casos de Prueba | Resultado | Estado |
+| :--- | :--- | :--- | :--- |
+| **Autenticación** | Login exitoso, credenciales inválidas, validación campos vacíos. | 3/3 | ✅ PASSED |
+| **Gestión Usuarios** | Creación de usuario, actualización de rol. | 2/2 | ✅ PASSED |
+| **Inventario** | Registro producto, actualización stock, búsqueda. | 3/3 | ✅ PASSED |
+| **Punto de Venta** | Cálculos carrito (Total, IVA 16%, Subtotal), stock insuficiente. | 3/3 | ✅ PASSED |
+| **TOTAL** | **11 Casos Ejecutados** | **11/11 Exitosos** | **APROBADO** |
+
+**Fecha de ejecución:** 20 de junio de 2024  
+**Comando de verificación:** `./gradlew :app:testDebugUnitTest`
