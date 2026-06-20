@@ -54,8 +54,8 @@ Centraliza la conexión con la nube para sincronización en tiempo real:
 
 ## 🚀 Flujo Operativo y UX
 
-* [cite_start]**Interfaz de Usuario Inteligente (RNG-01):** Diseño moderno con modo oscuro nativo para mitigar la fatiga visual en entornos comerciales prolongados[cite: 75].
-* [cite_start]**Sincronización Instantánea (RNG-02):** Los ingresos financieros diarios y las deducciones de stock se reflejan inmediatamente en la base de datos y en todos los módulos sin necesidad de recargar la pantalla manualmente[cite: 64, 76].
+* **Interfaz de Usuario Inteligente (RNG-01):** Diseño moderno con modo oscuro nativo para mitigar la fatiga visual en entornos comerciales prolongados.
+* **Sincronización Instantánea (RNG-02):** Los ingresos financieros diarios y las deducciones de stock se reflejan inmediatamente en la base de datos y en todos los módulos sin necesidad de recargar la pantalla manualmente.
 
 ---
 
