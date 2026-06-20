@@ -133,15 +133,5 @@ Casos de prueba para evaluar la sincronización entre módulos.
 
 ---
 
-## 📊 Informe de Resultados de Pruebas Unitarias
-
-| Módulo | Casos de Prueba | Resultado | Estado |
-| :--- | :--- | :--- | :--- |
-| **Autenticación** | Login exitoso, credenciales inválidas, validación campos vacíos. | 3/3 | ✅ PASSED |
-| **Gestión Usuarios** | Creación de usuario, actualización de rol. | 2/2 | ✅ PASSED |
-| **Inventario** | Registro producto, actualización stock, búsqueda. | 3/3 | ✅ PASSED |
-| **Punto de Venta** | Cálculos carrito (Total, IVA 16%, Subtotal), stock insuficiente. | 3/3 | ✅ PASSED |
-| **TOTAL** | **11 Casos Ejecutados** | **11/11 Exitosos** | **APROBADO** |
-
 **Fecha de ejecución:** 20 de junio de 2024  
 **Comando de verificación:** `./gradlew :app:testDebugUnitTest`
