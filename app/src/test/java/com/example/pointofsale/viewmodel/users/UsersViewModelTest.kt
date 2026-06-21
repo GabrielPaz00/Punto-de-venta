@@ -41,7 +41,7 @@ class UsersViewModelTest {
 
     @Test
     fun `createUser llama al repositorio con los datos correctos`() = runTest {
-        // Dado
+        // Given
         val username = "Juan Perez"
         val email = "juan@empresa.com"
         val password = "123"
@@ -49,10 +49,10 @@ class UsersViewModelTest {
         
         coEvery { userRepository.createUser(any(), password) } returns Result.success(true)
 
-        // Cuando
+        // When
         viewModel.createUser(username, email, password, role)
 
-        // Entonces
+        // Then
         coVerify(exactly = 1) { 
             userRepository.createUser(match { 
                 it.username == username && it.email == email && it.userLevel == role 
@@ -63,15 +63,15 @@ class UsersViewModelTest {
 
     @Test
     fun `updateUserRole llama al repositorio para actualizar el nivel del usuario`() = runTest {
-        // Dado
+        // Given
         val user = User(uid = "user123", username = "Juan", userLevel = "Usuario")
         val newRole = "Admin"
         coEvery { userRepository.updateUser(any()) } returns Result.success(true)
 
-        // Cuando
+        // When
         viewModel.updateUserRole(user, newRole)
 
-        // Entonces
+        // Then
         coVerify(exactly = 1) { 
             userRepository.updateUser(match { it.uid == user.uid && it.userLevel == newRole }) 
         }

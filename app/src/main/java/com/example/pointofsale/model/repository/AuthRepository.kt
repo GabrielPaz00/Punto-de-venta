@@ -76,6 +76,19 @@ class AuthRepository private constructor(
         _userProfile.value = null
     }
 
+    suspend fun deleteUserByAdmin(targetUid: String): Result<Boolean> {
+        val currentUser = _userProfile.value
+        if (currentUser?.userLevel != "admin") {
+            return Result.failure(Exception("Permiso denegado: Se requiere nivel de administrador"))
+        }
+
+        if (currentUser.uid == targetUid) {
+            return Result.failure(Exception("No puedes eliminar tu propia cuenta de administrador desde aquí"))
+        }
+
+        return userRepository.deleteUser(targetUid)
+    }
+
     suspend fun getCurrentUserProfile(): User? {
         val firebaseUser = auth.currentUser ?: return null
 

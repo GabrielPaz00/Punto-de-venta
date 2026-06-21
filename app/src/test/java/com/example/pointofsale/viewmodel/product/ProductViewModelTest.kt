@@ -33,37 +33,40 @@ class ProductViewModelTest {
 
     @Test
     fun `createProduct llama al repositorio correctamente`() = runTest {
-        // Dado
+        // Given
         val product = Product(id = "1", name = "Test Product", price = 10.0, stock = 5)
         coEvery { productRepository.createProduct(product) } returns Result.success(true)
 
-        // Cuando
+        // When
         viewModel.createProduct(product)
 
-        // Entonces
+        // Then
         coVerify(exactly = 1) { productRepository.createProduct(product) }
     }
 
     @Test
     fun `updateStock llama al repositorio con el nuevo stock`() = runTest {
-        // Dado
+        // Given
         val productId = "prod123"
         val newStock = 20
         coEvery { productRepository.updateStock(productId, newStock) } returns Result.success(true)
 
-        // Cuando
+        // When
         viewModel.updateStock(productId, newStock)
 
-        // Entonces
+        // Then
         coVerify(exactly = 1) { productRepository.updateStock(productId, newStock) }
     }
 
     @Test
     fun `searchProducts actualiza la query de busqueda`() = runTest {
-        // Cuando
-        viewModel.searchProducts("Laptop")
+        //Given
+        val searchQuery = "Laptop"
 
-        // Entonces
-        assertEquals("Laptop", viewModel.searchQuery.value)
+        // When
+        viewModel.searchProducts(searchQuery)
+
+        // Then
+        assertEquals(searchQuery, viewModel.searchQuery.value)
     }
 }
